@@ -1,0 +1,37 @@
+name: wilson_env 
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy
+  - scipy
+  - matplotlib
+  - astropy
+  - astroquery
+  - beautifulsoup4
+  - requests
+  - tqdm
+  - pandas
+  - bokeh 
+  - jupyter 
+  - ipython 
+  - seaborn 
+  - scikit-learn 
+  - scikit-image 
+  - cython
+  - pylint
+  - flake8
+  - autopep8
+  - pep8
+  - black
+  - fast-histogram
+  - specutils
+  - h5py
+  - pip
+  - pip:
+    - corner
+    - emcee
+    - celerite2
+    - exoplanet
+    - importlib_resources
