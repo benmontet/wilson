@@ -1,0 +1,157 @@
+%% Beginning of file 'sample631.tex'
+%%
+%% Modified 2021 March
+%%
+%% In particular, revtex v4.1 can be found at 
+%% https://www.ctan.org/pkg/revtex4-1.
+
+\documentclass[twocolumn,dvipsnames]{aastex631}
+% twocolumn,linenumbers
+
+\usepackage{xspace}
+\usepackage{amsmath}
+\usepackage{soul}
+% \usepackage{titlesec} %comment out if we want 2 cols
+\usepackage{lipsum, babel}
+\usepackage[shortlabels]{enumitem}
+
+\newcommand{\sectionbreak}{\clearpage}
+
+% software
+\newcommand{\lk}{\texttt{lightkurve}\xspace}
+\newcommand{\unpopular}{\texttt{unpopular}\xspace}
+\newcommand{\tesssip}{\texttt{TESS-sip}\xspace}
+
+% telescopes
+\newcommand{\galah}{{\small GALAH}\xspace}
+\newcommand{\apogee}{{\small APOGEE}\xspace}
+\newcommand{\galex}{{\small GALEX}\xspace}
+\newcommand{\lamost}{{\small LAMOST}\xspace}
+\newcommand{\kepler}{\textit{Kepler}\xspace}
+\newcommand{\tess}{\textit{TESS}\xspace}
+\newcommand{\gaia}{\textit{Gaia}\xspace}
+
+% variales
+\newcommand{\solmass}{M$_\odot$\xspace}
+\newcommand{\solrad}{R$_\odot$\xspace}
+\newcommand{\app}{$\sim$}
+\newcommand{\logg}{$\log g$\xspace}
+\newcommand{\teff}{T$_\textrm{eff}$\xspace}
+\newcommand{\feh}{[Fe/H]\xspace}
+\newcommand{\mgfe}{[Mg/Fe]\xspace}
+\newcommand{\bafe}{[Ba/Fe]\xspace}
+\newcommand{\ali}{$A\textrm{(Li)}$\xspace}
+\newcommand{\dnu}{$\Delta \nu$\xspace}
+\newcommand{\numax}{$\nu_{\text{max}}$\xspace}
+\newcommand{\muhz}{$\mu \text{Hz}$\xspace}
+\newcommand{\halpha}{H-$\alpha$\xspace}
+\newcommand{\vsini}{$v\sin i$\xspace}
+\newcommand{\cc}{C$^{12}$/C$^{13}$\xspace}
+\newcommand{\vbr}{$v_\textrm{broad}$\xspace}
+\newcommand{\vmac}{$v_\textrm{macro}$\xspace}
+\newcommand{\kms}{km s$^{-1}$\xspace}
+\newcommand{\tc}{$T_c$\xspace}
+\newcommand{\ang}{$\textrm{\AA}$\xspace}
+\newcommand{\chisq}{$\chi^2$\xspace}
+
+% repetitive words
+\newcommand{\li}{lithium\xspace}
+\newcommand{\lirich}{Li-rich\xspace}
+\newcommand{\lin}{Li-normal\xspace}
+\newcommand{\fthree}{\texttt{f3}}
+\newcommand{\total}{1122\xspace}
+\newcommand{\rotp}{rotation period\xspace}
+\newcommand{\dg}{doppelg\"anger\xspace}
+\newcommand{\dgs}{doppelg\"angers\xspace}
+\newcommand{\plen}{planetary engulfment\xspace}
+\newcommand{\seismo}{asteroseismology\xspace}
+\newcommand{\ber}{beryllium\xspace}
+\newcommand{\cond}{condensation temperature\xspace}
+\newcommand{\pysyd}{\texttt{pySYD}\xspace}
+
+\definecolor{forestgreen}{rgb}{0.13, 0.55, 0.13}
+% 
+\newcommand{\ask}[1]{\textbf{\textcolor{orange}{Ask: #1}}}
+\newcommand{\done}[1]{\textbf{\textcolor{cyan}{#1}}}
+\newcommand{\todo}[1]{\textbf{\textcolor{purple}{#1}}}
+\newcommand{\gully}[1]{\textbf{\textcolor{forestgreen}{#1}}}
+\newcommand{\ben}[1]{\textbf{\textcolor{blue}{#1}}}
+
+%% Reintroduced the \received and \accepted commands from AASTeX v5.2
+% \received{March 1, 2021}
+% \revised{April 1, 2021}
+% \accepted{\today}
+
+%% Command to document which AAS Journal the manuscript was submitted to.
+%% Adds "Submitted to " the argument.
+%\submitjournal{PSJ}
+
+\shorttitle{Brownian Rotation}
+\shortauthors{Montet and/or Gully-Santiago}
+
+%% \watermark{text}
+%% \setwatermarkfontsize{dimension}
+\graphicspath{{./}{figures/}}
+
+\begin{document}
+
+\title{Ben Brown's models are right, or maybe not, let's find out together}
+
+\correspondingauthor{One of Us}
+\email{email@email.edu}
+
+
+\author[0000-0001-7516-8308]{Benjamin T. Montet}
+\affiliation{School of Physics, University of New South Wales, Kensington, New South Wales, Australia}
+\affiliation{UNSW Data Science Hub, University of New South Wales, Sydney, NSW 2052, Australia}
+
+
+\author{Michael Gully-Santiago}
+\affiliation{UT Austin}
+
+
+\begin{abstract}
+\todo{This is an abstract}
+
+\end{abstract}
+
+%% https://astrothesaurus.org
+\keywords{Stars: abundances --- stars: activity --- stars: evolution --- stars: rotation --- stars: AGB and post-AGB}
+
+
+\section{Introduction} \label{sec:intro}
+
+M dwarf magnetic fields are poorly understood. 
+
+Lots of theories out there of what might happen in the photometry.
+
+One of these is Brown et al. 2020, who have models with hemispheric oscillations over $\sim$ 15 rotation periods
+
+This should be detectable in long-term photometry, such as the Kepler FFIs
+
+How can we characterise the variability on long timescales of fully convective objects?
+
+\section{A little bit of theory}
+
+Our metric is the amplitude of the short-term variability of a star's brightness, inferred as largely due to starspots, compared to the brightness in the \kepler\ bandpass overall, as inferred through \fthree\ photometry.
+
+\subsection{What does this look like in activity cycles}
+
+We would see something that goes up or down in time linearly, whether the star is spot or facula dominated. This is consistent with \citet{Montet17} and can be used to infer the relative importance of starspots and faculae in the overall brightness of individual stars from the Earth's viewing angle.
+
+\subsection{What does this look like for Ben Brown's models?}
+
+Well that's complicated by viewing angle which we don't understand. For stars that are equator-on (and have no long-term changes in the activity level, only a swap in active hemisphere), that should mean both the overall flux and short-term activity are constant. As the star becomes more pole-on, these two effects deviate: the overall short-term variability level decays as starspots remain visible and at similar levels of limb darkening over their entire rotation. The overall flux becomes more variable though, as the total spot coverage visible to an observer changes dramatically from the active hemisphere being visible towards Earth to the opposite case. 
+
+\subsection{How do we test this?}
+
+We don't know the inclination angles and this makes things hard. But we can use a control sample and large enough samples so that the unknown inclinations wash out over a population, and we can dive deep on individual systems to understand their specifics. 
+
+
+\bibliography{references}{}
+\bibliographystyle{aasjournal}
+
+
+\end{document}
+
+% End of file `sample631.tex'.
