@@ -1,1 +1,4 @@
 *.ipynb_checkpoints
+
+data/Gaia/kepler_dr3_good.fits
+data/f3/lc_data_new.out
