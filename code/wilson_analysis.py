@@ -92,54 +92,54 @@ ffidata = pd.read_csv("../data/f3/lc_data_new.out")
 
 times_bkjd = times + 2400000.5 - 2454833.0
 
-# df_sample = pd.read_csv("../data/samples/target_sample.csv", index_col=0)
-# kepids = df_sample.kepid.values
+df_sample = pd.read_csv("../data/samples/target_sample.csv", index_col=0)
+kepids = df_sample.kepid.values
+
+output_df = pd.DataFrame()
 
 # Set the KIC ID here
-kepid = 5818116
+for j, kepid in enumerate(kepids):
 
+    # Step 1: Get the F3 lightcurve
+    flux = ffidata[ffidata["KIC"] == kepid].iloc[:, 1:53]
+    yerr = ffidata[ffidata["KIC"] == kepid].iloc[:, -52:]
 
-# Step 1: Get the F3 lightcurve
-flux = ffidata[ffidata["KIC"] == kepid].iloc[:, 1:53]
-yerr = ffidata[ffidata["KIC"] == kepid].iloc[:, -52:]
+    result_df = pd.DataFrame(
+        data={
+            "time_bkjd": times_bkjd,
+            "flux": flux.values.reshape(-1),
+            "flux_unc": yerr.values.reshape(-1),
+        }
+    )
+    result_df["lc_amp_pm30"] = np.NaN
 
-result_df = pd.DataFrame(
-    data={
-        "time_bkjd": times_bkjd,
-        "flux": flux.values.reshape(-1),
-        "flux_unc": yerr.values.reshape(-1),
-    }
-)
-result_df["lc_amp_pm30"] = np.NaN
+    # Step 2a: Get all the long-cadence lightcurves
+    sr = lk.search_lightcurve("KIC {}".format(kepid))
 
-# Step 2a: Get all the long-cadence lightcurves
-sr = lk.search_lightcurve("KIC {}".format(kepid))
-n_quarters = len(sr)
+    lcs_raw = sr.download_all()
+    lcs = lk.LightCurveCollection([lc.PDCSAP_FLUX.normalize() for lc in lcs_raw])
 
-lcs_raw = sr.download_all()
-lcs = lk.LightCurveCollection([lc.PDCSAP_FLUX.normalize() for lc in lcs_raw])
+    # Step 2b: Get the global period
+    lc_global = lcs.stitch().remove_nans().normalize()
+    pg = lc_global.to_periodogram()
+    period_global = pg.period_at_max_power.value
 
-# Step 2b: Get the global period
-lc_global = lcs.stitch().remove_nans().normalize()
-pg = lc_global.to_periodogram()
-period_global = pg.period_at_max_power.value
+    # Step 3: Search each each f3 time point for available long cadence
+    dt = 30
 
-# Step 3: Search each each f3 time point for available long cadence
-dt = 30
+    for i, time in enumerate(times_bkjd):
+        t_lo, t_hi = time - dt, time + dt
+        mask = (lc_global.time.value > t_lo) & (lc_global.time.value < t_hi)
+        if mask.sum() > 13:
+            lc = lc_global[mask]
+            coeffs = best_fit_coeffs(
+                lc.time.value, lc.flux.value, lc.flux_err.value, period_global
+            )
+            amplitude = np.hypot(coeffs[0], coeffs[1])
+            result_df.loc[i, "lc_amp_pm30"] = amplitude
 
-for i, time in enumerate(times_bkjd):
-    t_lo, t_hi = time - dt, time + dt
-    mask = (lc_global.time.value > t_lo) & (lc_global.time.value < t_hi)
-    if mask.sum() > 13:
-        lc = lc_global[mask]
-        coeffs = best_fit_coeffs(
-            lc.time.value, lc.flux.value, lc.flux_err.value, period_global
-        )
-        amplitude = np.hypot(coeffs[0], coeffs[1])
-        result_df.loc[i, "lc_amp_pm30"] = amplitude
+    # Step 4: Save the output to disk
+    result_df["kepid"] = kepid
+    output_df = pd.concat([output_df, result_df], ignore_index=True)
 
-
-# Step 4: Save the output to disk
-result_df["kepid"] = kepid
-
-result_df.to_csv("../data/results/wilson_output.csv", index=False)
+    output_df.to_csv("../data/results/wilson_output.csv", index=False)
