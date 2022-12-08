@@ -35,4 +35,5 @@ dependencies:
     - emcee
     - celerite2
     - exoplanet
+    - fleck
     - importlib_resources
