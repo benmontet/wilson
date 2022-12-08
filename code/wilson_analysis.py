@@ -4,8 +4,9 @@ from astropy.table import Table
 import pandas as pd
 from astropy.io import fits
 import lightkurve as lk
-
 import warnings
+
+from tqdm import tqdm
 
 warnings.filterwarnings("ignore", category=lk.utils.LightkurveDeprecationWarning)
 
@@ -95,10 +96,12 @@ times_bkjd = times + 2400000.5 - 2454833.0
 df_sample = pd.read_csv("../data/samples/target_sample.csv", index_col=0)
 kepids = df_sample.kepid.values
 
+n_sources = len(kepids)
+
 output_df = pd.DataFrame()
 
 # Set the KIC ID here
-for j, kepid in enumerate(kepids):
+for j, kepid in tqdm(enumerate(kepids), total=n_sources):
 
     # Step 1: Get the F3 lightcurve
     flux = ffidata[ffidata["KIC"] == kepid].iloc[:, 1:53]
@@ -114,32 +117,38 @@ for j, kepid in enumerate(kepids):
     result_df["lc_amp_pm30"] = np.NaN
 
     # Step 2a: Get all the long-cadence lightcurves
-    sr = lk.search_lightcurve("KIC {}".format(kepid))
+    try:
+        sr = lk.search_lightcurve("KIC {}".format(kepid), cadence="long")
 
-    lcs_raw = sr.download_all()
-    lcs = lk.LightCurveCollection([lc.PDCSAP_FLUX.normalize() for lc in lcs_raw])
+        lcs_raw = sr.download_all()
+        lcs = lk.LightCurveCollection([lc.PDCSAP_FLUX.normalize() for lc in lcs_raw])
 
-    # Step 2b: Get the global period
-    lc_global = lcs.stitch().remove_nans().normalize()
-    pg = lc_global.to_periodogram()
-    period_global = pg.period_at_max_power.value
+        # Step 2b: Get the global period
+        lc_global = lcs.stitch().remove_nans().normalize()
+        pg = lc_global.to_periodogram()
+        period_global = pg.period_at_max_power.value
 
-    # Step 3: Search each each f3 time point for available long cadence
-    dt = 30
+        # Step 3: Search each each f3 time point for available long cadence
+        dt = 30
 
-    for i, time in enumerate(times_bkjd):
-        t_lo, t_hi = time - dt, time + dt
-        mask = (lc_global.time.value > t_lo) & (lc_global.time.value < t_hi)
-        if mask.sum() > 13:
-            lc = lc_global[mask]
-            coeffs = best_fit_coeffs(
-                lc.time.value, lc.flux.value, lc.flux_err.value, period_global
-            )
-            amplitude = np.hypot(coeffs[0], coeffs[1])
-            result_df.loc[i, "lc_amp_pm30"] = amplitude
+        for i, time in enumerate(times_bkjd):
+            t_lo, t_hi = time - dt, time + dt
+            mask = (lc_global.time.value > t_lo) & (lc_global.time.value < t_hi)
+            if mask.sum() > 13:
+                lc = lc_global[mask]
+                coeffs = best_fit_coeffs(
+                    lc.time.value, lc.flux.value, lc.flux_err.value, period_global
+                )
+                amplitude = np.hypot(coeffs[0], coeffs[1])
+                result_df.loc[i, "lc_amp_pm30"] = amplitude
 
-    # Step 4: Save the output to disk
-    result_df["kepid"] = kepid
-    output_df = pd.concat([output_df, result_df], ignore_index=True)
+        # Step 4: Save the output to disk
+        result_df["kepid"] = kepid
+        result_df = result_df[["kepid", "time_bkjd", "flux", "flux_unc", "lc_amp_pm30"]]
+        output_df = pd.concat([output_df, result_df], ignore_index=True)
 
-    output_df.to_csv("../data/results/wilson_output.csv", index=False)
+        output_df.to_csv("../data/results/wilson_output.csv", index=False)
+    except lk.utils.LightkurveError:
+        print("----------------------------")
+        print("Kepid: {} had problems!".format(kepid))
+        print("----------------------------")
