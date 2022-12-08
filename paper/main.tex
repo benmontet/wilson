@@ -148,6 +148,24 @@ Well that's complicated by viewing angle which we don't understand. For stars th
 We don't know the inclination angles and this makes things hard. But we can use a control sample and large enough samples so that the unknown inclinations wash out over a population, and we can dive deep on individual systems to understand their specifics. 
 
 
+\section{Data Processing}
+
+Okay so the data are actually sub-optimal for this in some ways.
+
+We want to explore the slower rotators. But for these, PDC warps the signal so that we don't see long-term signals in all quarters, and the ones we do, we're skeptical that the amplitude hasn't been modulated by the pipeline. We know this is the case at least sometimes!
+
+So SAP is useful, but it has all sorts of long-term signals in it which are instrumental in nature. Those will stuff up our interpretation if we don't correctly account for them.
+
+What do? Something like Christina's TESS-SIP is the way forward here, we can apply it to the SAP data and do a good job separating the instrumental and astrophysical signals. Better yet, when we do that, we have an additional piece of information in that we can anchor the flux to the \fthree\ flux at each month, which will help us model the long-term behavior. We know what is going on in intermediate timescales which helps us calibrate those short timescales.
+
+lightkurve is a good bet here, because we can use the CBVCorrector class to get the CBVs, and add in extra terms to the design matrix on top of that easily. What are the necessary additional terms to add in? We need something that looks like the stellar variability via a periodic signal, the CBVs, and something that anchors the data at the times of the \fthree\ photometry. 
+
+
+\secion{Sample Selection}
+
+The \citet{Brown21} model is based in fully-convective M dwarfs. We use the gaia-kepler.fun one-to-one catalog, which crossmatches Gaia DR3 against the Kepler DR25 catalog of all stellar targets with long-cadence observations from \kepler. We select all targets in this catalog with Gaia temperatures less than 3400 K and \logg $> 4.0$, to select M dwarfs near and below the fully convective boundary. As a control sample, we also select a sample of earlier M dwarfs, with $3400 < T < 3700$ and the same gravity constraint.
+
+
 \bibliography{references}{}
 \bibliographystyle{aasjournal}
 
